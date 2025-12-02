@@ -1,0 +1,39 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px;">
+    <h2>Отписка от рассылки</h2>
+    <p>Мы сожалеем, что вы хотите отписаться от нашей рассылки.</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" 
+             style="padding: 10px; margin-bottom: 20px; border-radius: 4px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label for="{{ form.email.id_for_label }}">Введите ваш email для отписки:</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                {{ form.email.errors }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" style="padding: 10px 20px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Отписаться
+        </button>
+    </form>
+    
+    <div style="margin-top: 30px; font-size: 14px; color: #666;">
+        <p>Передумали? <a href="{% url 'subscribe' %}">Вернуться к подписке</a></p>
+    </div>
+</div>
+{% endblock %}

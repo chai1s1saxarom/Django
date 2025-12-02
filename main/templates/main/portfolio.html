@@ -1,0 +1,23 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+
+<p>Здесь представлены мои учебные проекты. Нажмите на название проекта для просмотра деталей.</p>
+
+{% for project in projects %}
+<div class="project">
+    <h3>
+        <a href="{% url 'project_detail' project.id %}">
+            {{ project.title }}
+        </a>
+    </h3>
+    <p><strong>Дата создания:</strong> {{ project.created_at|date:"d.m.Y" }}</p>
+    <p>{{ project.description|truncatewords:30 }}</p>
+    <a href="{% url 'project_detail' project.id %}" class="btn-details">Подробнее →</a>
+</div>
+{% empty %}
+<p>Проектов пока нет. Они скоро появятся!</p>
+{% endfor %}
+
+{% endblock %}

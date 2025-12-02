@@ -1,0 +1,19 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px; text-align: center;">
+    <h2>Подписка оформлена! ✅</h2>
+    <div style="font-size: 48px; margin: 20px 0;">🎉</div>
+    <p>Спасибо за подписку! Теперь вы будете получать самые свежие новости и обновления.</p>
+    <p>Мы отправим вам первое письмо в ближайшее время.</p>
+    
+    <div style="margin-top: 30px;">
+        <a href="{% url 'home' %}" style="padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 4px; margin-right: 10px;">
+            На главную
+        </a>
+        <a href="{% url 'portfolio' %}" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px;">
+            В портфолио
+        </a>
+    </div>
+</div>
+{% endblock %}

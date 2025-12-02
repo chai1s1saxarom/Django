@@ -1,0 +1,26 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<h2>{{ title }}</h2>
+
+<p>Здесь представлены пройденные лекции по курсу Django. Нажмите на название лекции для просмотра деталей.</p>
+
+{% for lecture in lectures %}
+<div class="lecture">
+    <h3>
+        <a href="{% url 'lecture_detail' lecture.id %}">
+            {{ lecture.title }}
+        </a>
+    </h3>
+    <p><strong>📅 Дата добавления:</strong> {{ lecture.created_at|date:"d.m.Y" }}</p>
+    <p>{{ lecture.description|truncatewords:30 }}</p>
+    <a href="{% url 'lecture_detail' lecture.id %}" class="btn-details">Подробнее →</a>
+</div>
+{% empty %}
+<div class="no-lectures">
+    <h3>📚 Лекций пока нет</h3>
+    <p>Раздел находится в разработке. Лекции появятся скоро!</p>
+</div>
+{% endfor %}
+
+{% endblock %}

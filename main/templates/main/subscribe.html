@@ -1,0 +1,39 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 600px; margin: 50px auto; padding: 20px;">
+    <h2>Подписка на новости</h2>
+    <p>Будьте в курсе последних новостей и обновлений нашего сайта.</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-success{% endif %}" 
+             style="padding: 10px; margin-bottom: 20px; border-radius: 4px;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 20px;">
+            <label for="{{ form.email.id_for_label }}">Email адрес:</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+            <div style="color: red; font-size: 14px; margin-top: 5px;">
+                {{ form.email.errors }}
+            </div>
+            {% endif %}
+        </div>
+        
+        <button type="submit" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+            Подписаться
+        </button>
+    </form>
+    
+    <div style="margin-top: 30px; font-size: 14px; color: #666;">
+        <p>Уже подписаны? <a href="{% url 'unsubscribe' %}">Отписаться от рассылки</a></p>
+    </div>
+</div>
+{% endblock %}

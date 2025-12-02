@@ -1,0 +1,20 @@
+{% extends 'main/layout.html' %}
+
+{% block content %}
+<div class="project-detail">
+    <h2>{{ project.title }}</h2>
+    
+    <div class="project-meta">
+        <p><strong>Дата создания:</strong> {{ project.created_at|date:"d.m.Y H:i" }}</p>
+    </div>
+    
+    <div class="project-description">
+        <h3>Описание проекта</h3>
+        <p>{{ project.description|linebreaks }}</p>
+    </div>
+    
+    <div class="project-actions">
+        <a href="{% url 'portfolio' %}" class="btn-back">← Назад к списку проектов</a>
+    </div>
+</div>
+{% endblock %}
