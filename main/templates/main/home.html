@@ -1,17 +1,22 @@
-{% extends 'main/layout.html' %}
+{% extends 'main/base.html' %}
+
+{% block title %}Главная страница (CBV){% endblock %}
 
 {% block content %}
-<h2>{{ title }}</h2>
-<p>Добро пожаловать на мой первый сайт на Django!</p>
+<h1>Производители в нашем каталоге (CBV версия)</h1>
 
-<h3>О этом проекте</h3>
-<p>Этот сайт создан в рамках лабораторной работы по дисциплине "Разработка программных модулей и приложений для серверов".</p>
-
-<h3>Используемые технологии:</h3>
-<ul>
-    <li>Python 3.x</li>
-    <li>Django 5.x</li>
-    <li>HTML5</li>
-    <li>CSS3</li>
-</ul>
+{% for manufacturer in manufacturers %}
+<div class="manufacturer">
+    <h3>
+        <a href="{% url 'manufacturer_products_cbv' manufacturer.id %}">
+            {{ manufacturer.name }}
+        </a>
+    </h3>
+    <p>Страна: {{ manufacturer.country }}</p>
+    <p>Товаров: {{ manufacturer.product_set.count }}</p>
+</div>
+{% empty %}
+<p>Производителей пока нет</p>
+{% endfor %}
 {% endblock %}
+

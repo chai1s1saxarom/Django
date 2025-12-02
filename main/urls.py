@@ -1,22 +1,15 @@
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from . import views
-
+from .views import HomeView, ProductListView, ProductDetailView, ManufacturerProductsView
 urlpatterns = [
-    path('admin/', admin.site.urls),
     path('', views.home, name='home'),
-    path('about/', views.about, name='about'),
-    path('portfolio/', views.portfolio, name='portfolio'),
-    path('portfolio/<int:project_id>/', views.project_detail, name='project_detail'),
-    path('lectures/', views.lectures, name='lectures'),
-    path('lectures/<int:lecture_id>/', views.lecture_detail, name='lecture_detail'),
-    path('contacts/', views.contacts, name='contacts'),
-    path('feedback/', views.feedback_list, name='feedback_list'),
-    path('subscribe/', views.subscribe, name='subscribe'),
-    path('subscribe/success/', views.subscribe_success, name='subscribe_success'),
-    path('unsubscribe/', views.unsubscribe, name='unsubscribe'),
-    path('quick-subscribe/', views.quick_subscribe, name='quick_subscribe'),
+    path('products/', views.product_list, name='product_list'),
+    path('products/<int:product_id>/', views.product_detail, name='product_detail'),
+    path('manufacturer/<int:manufacturer_id>/', views.manufacturer_products, name='manufacturer_products'),
+    path('products/search/', views.search_products, name='search_products'),
+    path('cbv/', HomeView.as_view(), name='home_cbv'),
+    path('cbv/products/', ProductListView.as_view(), name='product_list_cbv'),
+    path('cbv/products/<int:pk>/', ProductDetailView.as_view(), name='product_detail_cbv'),
+    path('cbv/manufacturer/<int:manufacturer_id>/', ManufacturerProductsView.as_view(), name='manufacturer_products_cbv'),
 ]
 

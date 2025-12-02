@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+
+
+{% block title %}Все товары{% endblock %}
+
+
+{% block content %}
+<h1>Все товары в каталоге</h1>
+
+
+{% for product in products %}
+<div class="product">
+    <h3>
+        <!-- ВАЖНО: передаем product.id как параметр -->
+        <a href="{% url 'product_detail' product.id %}">
+            {{ product.name }}
+        </a>
+    </h3>
+    <p><strong>Производитель:</strong> {{ product.manufacturer.name }}</p>
+    <p><strong>Цена:</strong> {{ product.price }} руб.</p>
+    <p><strong>На складе:</strong> {{ product.stock_quantity }} шт.</p>
+    <p><strong>Статус:</strong> 
+        {% if product.is_available %}
+            Доступен
+        {% else %}
+            Недоступен
+        {% endif %}
+    </p>
+</div>
+{% empty %}
+<p>Товаров пока нет</p>
+{% endfor %}
+{% endblock %}

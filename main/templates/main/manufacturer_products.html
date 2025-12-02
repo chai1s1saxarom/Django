@@ -1,0 +1,26 @@
+{% extends 'main/base.html' %}
+
+
+{% block title %}Товары {{ manufacturer.name }}{% endblock %}
+
+
+{% block content %}
+<h1>Товары производителя: {{ manufacturer.name }}</h1>
+
+
+{% for product in products %}
+<div class="product">
+    <h3>
+        <a href="{% url 'product_detail' product.id %}">
+            {{ product.name }}
+        </a>
+    </h3>
+    <p><strong>Цена:</strong> {{ product.price }} руб.</p>
+</div>
+{% empty %}
+<p>У этого производителя пока нет товаров</p>
+{% endfor %}
+
+
+<a href="{% url 'home' %}">← Назад к производителям</a>
+{% endblock %}

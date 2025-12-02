@@ -1,169 +1,110 @@
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from .forms import SubscribeForm, UnsubscribeForm, FeedbackForm,ContactForm
-from .models import Subscriber, Product, Manufacturer, Category, Feedback, Project, Lecture
-
+from django.shortcuts import render, get_object_or_404
+from .models import Product, Manufacturer
 
 def home(request):
-    context = {'title': 'Главная страница'}
-    return render(request, 'main/home.html', context)
+    """
+    Домашняя страница - список всех производителей
+    """
+    manufacturers = Manufacturer.objects.all()
+    return render(request, 'main/home.html', {
+        'manufacturers': manufacturers
+    })
 
-def about(request):
-    context = {'title': 'Обо мне'}
-    return render(request, 'main/about.html', context)
+def product_list(request):
+    """
+    Список всех товаров
+    """
+    products = Product.objects.select_related('manufacturer').all()
+    return render(request, 'main/product_list.html', {
+        'products': products
+    })
 
-def portfolio(request):
-    projects = Project.objects.all().order_by('-created_at')
-    context = {
-        'title': 'Портфолио', 
-        'projects': projects
-    }
-    return render(request, 'main/portfolio.html', context)
+def product_detail(request, product_id):
+    """
+    Детальная страница товара
+    """
+    product = get_object_or_404(Product, id=product_id)
+    return render(request, 'main/product_detail.html', {
+        'product': product
+    })
 
-def lectures(request):  
-    lectures_list = Lecture.objects.all()
-    context = {
-        'title': 'Лекции', 
-        'lectures': lectures_list
-    }
-    return render(request, 'main/lectures.html', context)
+def manufacturer_products(request, manufacturer_id):
+    """
+    Товары конкретного производителя
+    """
+    manufacturer = get_object_or_404(Manufacturer, id=manufacturer_id)
+    products = Product.objects.filter(manufacturer=manufacturer)
+    return render(request, 'main/manufacturer_products.html', {
+        'manufacturer': manufacturer,
+        'products': products
+    })
 
-def contacts(request):
-    if request.method == 'POST':
-        form = FeedbackForm(request.POST)
-        if form.is_valid():
-            try:
-                form.save()
-                messages.success(request, 'Ваше сообщение успешно отправлено! Мы ответим вам в ближайшее время.')
-                return redirect('contacts')
-            except Exception as e:
-                messages.error(request, f'Произошла ошибка при отправке: {str(e)}')
-        else:
-            #отладочная информация
-            messages.error(request, f'Форма не валидна. Ошибки: {form.errors}')
+def search_products(request):
+    """
+    Поиск товаров по названию 
+    """
+    # Получаем поисковый запрос из GET-параметра
+    query = request.GET.get('q', '')
+    
+    # Ищем товары, если есть поисковый запрос
+    if query:
+        products = Product.objects.filter(name__icontains=query)
     else:
-        form = FeedbackForm()
+        products = []
     
-    context = {
-        'title': 'Контакты',
-        'form': form
-    }
-    return render(request, 'main/contacts.html', context)
+    # Передаем результаты в шаблон
+    return render(request, 'main/search_results.html', {
+        'products': products,
+        'query': query
+    })
+from django.views.generic import ListView, DetailView, TemplateView
 
-def project_detail(request, project_id):
-    project = get_object_or_404(Project, id=project_id)
-    context = {
-        'title': project.title,
-        'project': project
-    }
-    return render(request, 'main/project_detail.html', context)
-
-def lecture_detail(request, lecture_id):
-    lecture = get_object_or_404(Lecture, id=lecture_id)
-    context = {
-        'title': lecture.title,
-        'lecture': lecture
-    }
-    return render(request, 'main/lecture_detail.html', context)
-
-
-def feedback_list(request):
-    if not request.user.is_staff:
-        return redirect('home')
+# Классы для CBV (добавьте после существующих функций)
+class HomeView(TemplateView):
+    """Главная страница на основе класса"""
+    template_name = 'main/home_cbv.html'
     
-    feedbacks = Feedback.objects.all()
-    context = {
-        'title': 'Сообщения обратной связи',
-        'feedbacks': feedbacks
-    }
-    return render(request, 'main/feedback_list.html', context)
+    def get_context_data(self, **kwargs):
+        # Получаем контекст от родительского класса
+        context = super().get_context_data(**kwargs)
+        # Добавляем производителей в контекст шаблона
+        context['manufacturers'] = Manufacturer.objects.all()
+        return context
 
 
-
-def subscribe(request):
-    """
-    Страница подписки на новости
-    """
-    if request.method == 'POST':
-        form = SubscribeForm(request.POST)
-        if form.is_valid():
-            # Проверяем, есть ли уже неактивная подписка с этим email
-            email = form.cleaned_data['email']
-            existing_subscriber = Subscriber.objects.filter(email=email).first()
-            
-            if existing_subscriber:
-                # Активируем существующую подписку
-                existing_subscriber.is_active = True
-                existing_subscriber.save()
-            else:
-                # Создаем новую подписку
-                form.save()
-            
-            return redirect('subscribe_success')
-    else:
-        form = SubscribeForm()
+class ProductListView(ListView):
+    """Список товаров на основе класса"""
+    model = Product  # Указываем, с какой моделью работаем
+    template_name = 'main/product_list_cbv.html'
+    context_object_name = 'products'  # Как называть список в шаблоне
     
-    context = {
-        'title': 'Подписка на новости',
-        'form': form
-    }
-    return render(request, 'main/subscribe.html', context)
+    def get_queryset(self):
+        # Оптимизируем запрос к базе данных
+        return Product.objects.select_related('manufacturer').all()
 
-def subscribe_success(request):
-    """
-    Страница успешной подписки
-    """
-    context = {
-        'title': 'Подписка оформлена'
-    }
-    return render(request, 'main/subscribe_success.html', context)
 
-def unsubscribe(request):
-    """
-    Страница отписки от рассылки
-    """
-    if request.method == 'POST':
-        form = UnsubscribeForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            try:
-                subscriber = Subscriber.objects.get(email=email, is_active=True)
-                subscriber.is_active = False
-                subscriber.save()
-                messages.success(request, 'Вы успешно отписались от рассылки.')
-                return redirect('unsubscribe')
-            except Subscriber.DoesNotExist:
-                messages.error(request, 'Подписка с таким email не найдена.')
-    else:
-        form = UnsubscribeForm()
+class ProductDetailView(DetailView):
+    """Детальная страница товара на основе класса"""
+    model = Product
+    template_name = 'main/product_detail_cbv.html'
+    context_object_name = 'product'
+    # Автоматически ищет товар по ID (pk = primary key)
+
+
+class ManufacturerProductsView(ListView):
+    """Товары производителя на основе класса"""
+    template_name = 'main/manufacturer_products_cbv.html'
+    context_object_name = 'products'
     
-    context = {
-        'title': 'Отписка от рассылки',
-        'form': form
-    }
-    return render(request, 'main/unsubscribe.html', context)
-
-def quick_subscribe(request):
-    """
-    Быстрая подписка из футера (обработка AJAX или обычного POST)
-    """
-    if request.method == 'POST':
-        form = SubscribeForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data['email']
-            existing_subscriber = Subscriber.objects.filter(email=email).first()
-            
-            if existing_subscriber:
-                existing_subscriber.is_active = True
-                existing_subscriber.save()
-            else:
-                form.save()
-            
-            messages.success(request, 'Вы успешно подписались на рассылку!')
-        else:
-            # Передаем ошибки в messages
-            for error in form.errors['email']:
-                messages.error(request, error)
+    def get_queryset(self):
+        # Получаем ID производителя из URL
+        manufacturer_id = self.kwargs['manufacturer_id']
+        # Фильтруем товары по производителю
+        return Product.objects.filter(manufacturer_id=manufacturer_id)
     
-    return redirect(request.META.get('HTTP_REFERER', 'home'))
-
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Добавляем информацию о производителе
+        manufacturer_id = self.kwargs['manufacturer_id']
+        context['manufacturer'] = get_object_or_404(Manufacturer, id=manufacturer_id)
+        return context
